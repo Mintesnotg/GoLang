@@ -11,9 +11,9 @@ func main() {
 
     
 	log.SetPrefix("greetings: ")
-	log.SetFlags(0) 
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.LUTC)
 
-	message,err := greetings.Greetings("")
+	message,err := greetings.Greetings("Minte")
 
 	if err != nil { log.Fatal(err) }
 

@@ -1,30 +1,14 @@
 package main
 
- import (
-	"example/greetings"
+import (
 	"fmt"
- )
+
+	"example/hello/greetings"
+)
+
 func main() {
-	message := greetings.Greetings("Gladys")
-
+	message := greetings.Greetings("Minte")
 	fmt.Println("Hello, World!")
+	
 	fmt.Println(message)
-
 }
-
-
-
-
-
-}
-
-
-
-
-
-
-}
-
-
-
-

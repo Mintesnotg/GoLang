@@ -1,0 +1,32 @@
+# Build output and caches
+bin/
+gocache/
+gopath/
+gobuildcache/
+.gocache/
+.gopath/
+.gobuildcache/
+
+# Go tool artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.a
+*.cover
+*.coverprofile
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Logs and editor cruft
+*.log
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
