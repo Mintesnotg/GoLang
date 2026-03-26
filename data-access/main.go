@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bufio"
-
 	"database/sql"
 	"fmt"
 	"log"
@@ -10,15 +8,18 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-	"golang.org/x/term"
+	"github.com/joho/godotenv"
 )
 
 var db *sql.DB
 
 func main() {
+	// Optional convenience: load env vars from a local .env file (ignored if missing).
+	_ = godotenv.Load()
+
 	cfg := mysql.NewConfig()
-	cfg.User = getenvOrPrompt("DBUSER", "DB user", false)
-	cfg.Passwd = getenvOrPrompt("DBPASS", "DB password", true)
+	cfg.User = mustGetenvWithFallbacks("DBUSER")
+	cfg.Passwd = mustGetenvWithFallbacks("DBPASS")
 	cfg.Net = "tcp"
 	cfg.Addr = "127.0.0.1:3306"
 	cfg.DBName = "new_schema"
@@ -37,34 +38,23 @@ func main() {
 	fmt.Println("Connected!")
 }
 
-// getenvOrPrompt reads key from env, or prompts (interactive only) and sets it for this process.
-func getenvOrPrompt(key, label string, secret bool) string {
+// mustGetenvWithFallbacks returns the env var or exits with a clear setup hint.
+func mustGetenvWithFallbacks(key string) string {
+	// Common fallbacks (e.g., when using MySQL/MariaDB Docker images).
+	fallbackKeys := map[string][]string{
+		"DBUSER": {"MYSQL_USER", "MYSQL_USERNAME"},
+		"DBPASS": {"MYSQL_PASSWORD", "MYSQL_PWD"},
+	}
+
 	if val, ok := os.LookupEnv(key); ok && strings.TrimSpace(val) != "" {
 		return val
 	}
-
-	if !term.IsTerminal(int(os.Stdin.Fd())) {
-		log.Fatalf("%s environment variable is not set and cannot prompt in non-interactive mode. Set it first (PowerShell: $Env:%s=\"value\"  |  CMD: set %s=value).", key, key, key)
+	for _, fk := range fallbackKeys[key] {
+		if val, ok := os.LookupEnv(fk); ok && strings.TrimSpace(val) != "" {
+			return val
+		}
 	}
 
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		if secret {
-			// Go's stdlib doesn't provide a reliable cross-platform no-echo prompt without extra handling.
-			// We still read from stdin normally to keep setup simple.
-			fmt.Printf("%s (will be visible while typing): ", label)
-		} else {
-			fmt.Printf("%s: ", label)
-		}
-		line, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatalf("failed reading %s from stdin: %v", key, err)
-		}
-		val := strings.TrimSpace(line)
-		if val == "" {
-			continue
-		}
-		_ = os.Setenv(key, val)
-		return val
-	}
+	log.Fatalf("%s environment variable is not set. Set it first (PowerShell: $Env:%s=\"value\"  |  CMD: set %s=value). You can also put it in a local .env file.", key, key, key)
+	return ""
 }
