@@ -1,10 +1,17 @@
-package main
+package greetings
 
-import "fmt"
+// This file intentionally contains only the `greetings` package declaration.
+// It keeps the repo root from failing `go test ./...` due to multiple packages
+// declared in the same directory.
+//
+// Example (commented):
+// // func main() {
+// // 	fmt.Println(quote.Go())
+// // }
 
-import  "rsc.io/quote"
+// package main
 
-func main() { 
+// func main() {
 
-	fmt.Println(quote.Go())
-}
+// 	fmt.Println(quote.Go())
+// }
